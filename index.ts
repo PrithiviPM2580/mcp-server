@@ -1,12 +1,16 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import * as fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const server = new McpServer({
   name: "first-mcp-server",
   version: "1.0.0",
   capabilities: {
     tools: {},
+    resources: {},
   },
 });
 
@@ -54,6 +58,39 @@ server.tool(
         {
           type: "text",
           text: `Repositories for user ${username}: ${repoNames}`,
+        },
+      ],
+    };
+  }
+);
+
+server.resource(
+  "data-document", // Resource name
+  "rules://all", // Resource URI schema
+  {
+    description:
+      "A document containing security and performance configuration rules.",
+    mimeType: "text/plain", // Correct MIME type
+  },
+  async (uri) => {
+    const uriString = uri.toString();
+
+    // Resolve directory path
+    const __fileName = fileURLToPath(import.meta.url);
+    const __dirName = path.dirname(__fileName);
+
+    // File location
+    const filePath = path.resolve(__dirName, "./data/rules.doc");
+
+    // Read contents
+    const rules = await fs.readFile(filePath, "utf-8");
+
+    return {
+      contents: [
+        {
+          uri: uriString, // ✅ Must be in "contents"
+          text: rules, // ✅ Must be called "text"
+          mimeType: "text/plain",
         },
       ],
     };
