@@ -1,0 +1,107 @@
+[
+    {
+        "id": 1,
+        "name": "sessionTimeout",
+        "description": "Maximum inactive session duration before automatic logout.",
+        "rule": "terminate if idle > 30m",
+        "category": "security"
+    },
+    {
+        "id": 2,
+        "name": "passwordPolicy",
+        "description": "Requirements for user password complexity and rotation.",
+        "rule": "min 12 chars, upper, lower, digit, rotate every 90d",
+        "category": "access"
+    },
+    {
+        "id": 3,
+        "name": "backupRetention",
+        "description": "How long backups are retained before deletion.",
+        "rule": "keep daily 14, weekly 12, monthly 6",
+        "category": "backup"
+    },
+    {
+        "id": 4,
+        "name": "apiRateLimit",
+        "description": "Limits on API calls per client to prevent abuse.",
+        "rule": "1000 requests per hour per client",
+        "category": "network"
+    },
+    {
+        "id": 5,
+        "name": "loggingLevel",
+        "description": "Default logging verbosity for production services.",
+        "rule": "error for core, info for services, debug disabled",
+        "category": "logging"
+    },
+    {
+        "id": 6,
+        "name": "dataRetention",
+        "description": "Policy for retaining user-generated data.",
+        "rule": "archive after 365 days, purge after 1825 days",
+        "category": "storage"
+    },
+    {
+        "id": 7,
+        "name": "healthCheck",
+        "description": "Service liveness and readiness check intervals.",
+        "rule": "ping every 30s, fail after 3 consecutive misses",
+        "category": "monitoring"
+    },
+    {
+        "id": 8,
+        "name": "cacheEviction",
+        "description": "Strategy for removing items from application cache.",
+        "rule": "LRU, max size 1024 entries",
+        "category": "cache"
+    },
+    {
+        "id": 9,
+        "name": "deployWindow",
+        "description": "Allowed time window for automated deployments.",
+        "rule": "deploy between 02:00-05:00 UTC on weekdays",
+        "category": "scheduler"
+    },
+    {
+        "id": 10,
+        "name": "featureToggle",
+        "description": "Default state for beta feature exposure to users.",
+        "rule": "off for production, on for 5% canary group",
+        "category": "ui"
+    },
+    {
+        "id": 11,
+        "name": "integrityCheck",
+        "description": "Periodic verification of stored data integrity.",
+        "rule": "run weekly; alert on any mismatches",
+        "category": "analytics"
+    },
+    {
+        "id": 12,
+        "name": "authTimeout",
+        "description": "Maximum time allowed for multi-factor authentication completion.",
+        "rule": "timeout after 5 minutes",
+        "category": "security"
+    },
+    {
+        "id": 13,
+        "name": "schemaMigration",
+        "description": "Rules for applying database schema changes safely.",
+        "rule": "apply in staging then canary then production",
+        "category": "integration"
+    },
+    {
+        "id": 14,
+        "name": "quotaPerUser",
+        "description": "Resource quotas assigned to each user account.",
+        "rule": "10GB storage, 5 concurrent processes",
+        "category": "performance"
+    },
+    {
+        "id": 15,
+        "name": "alertEscalation",
+        "description": "Procedure for escalating unresolved alerts.",
+        "rule": "notify on-call, escalate to manager after 30m",
+        "category": "monitoring"
+    }
+]
