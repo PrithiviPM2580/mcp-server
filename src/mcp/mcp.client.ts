@@ -9,8 +9,8 @@ const mcpClient = new Client({
 
 async function main() {
   const clientTransport = new StdioClientTransport({
-    command: "node",
-    args: ["./src/mcp.server.ts"], // run the built JS
+    command: process.execPath,
+    args: ["./src/mcp/mcp.server.ts"],
   });
 
   await mcpClient.connect(clientTransport);

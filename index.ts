@@ -1,1 +1,1 @@
-import "./src/mcp.client.ts";
+import "./src/mcp/mcp.client.ts";
