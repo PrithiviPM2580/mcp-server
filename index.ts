@@ -1,1 +1,1 @@
-import "./src/mcp/StreamableHTTPServerTransport/mcp.server.ts";
+import "./src/mcp/resource/mcp.server.ts";

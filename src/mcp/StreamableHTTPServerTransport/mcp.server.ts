@@ -5,7 +5,6 @@ import {
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import express from "express";
 import { z } from "zod";
-import { number } from "zod/v4";
 import { config } from "../../config/env.config.ts";
 
 // Create MCP Server
