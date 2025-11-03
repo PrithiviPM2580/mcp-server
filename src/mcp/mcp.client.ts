@@ -2,11 +2,12 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import ai from "../config/gemini.config.ts";
 
-const messages: any[] = []; // Full conversation tracking
+const messages: any[] = []; // ✅ Full conversation history
 
 async function main() {
   console.log("🚀 Starting MCP Client...");
 
+  // ✅ 1. Initialize MCP Client
   const mcpClient = new Client({
     name: "MCP Stdio Client",
     title: "Model Context Protocol Stdio Client",
@@ -19,14 +20,14 @@ async function main() {
   });
 
   await mcpClient.connect(clientTransport);
-  console.log("✅ Connected to MCP Server");
+  console.log("✅ Connected to MCP Server\n");
 
-  // 1. Step: Add user input
-  const userMessage = "Add 2 and 3";
+  // ✅ 2. Add user message
+  const userMessage = "Subtract 15 from 45 and tell me the result.";
   messages.push({ role: "user", parts: [{ text: userMessage }] });
   console.log("👤 User:", userMessage);
 
-  // 2. Step: Load tools from MCP server
+  // ✅ 3. Load tool definitions from MCP server
   const { tools } = await mcpClient.listTools();
   const toolDefinitions = tools.map((tool: any) => ({
     name: tool.name,
@@ -37,61 +38,63 @@ async function main() {
       required: tool.inputSchema.required,
     },
   }));
-  console.log("🛠️ Loaded Tools from MCP Server:", toolDefinitions);
+  console.log("🛠️ Tools Available:", toolDefinitions, "\n");
 
-  // Ask Gemini: Should it use a tool?
-  console.log("🤖 Sending to Gemini (with tools enabled)...");
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: messages,
-    config: { tools: [{ functionDeclarations: toolDefinitions as any }] },
-  });
+  // ✅ 4. Loop → Ask Gemini → If tool call → execute → return result → repeat
+  while (true) {
+    console.log("🤖 Sending conversation to Gemini to decide next step...");
 
-  console.log("📥 Gemini Raw Response:", JSON.stringify(response, null, 2));
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: messages,
+      config: { tools: [{ functionDeclarations: toolDefinitions as any }] },
+    });
 
-  if (!response.functionCalls || response.functionCalls.length === 0) {
-    console.log("⚠️ Gemini did not request any tool.");
-    return;
-  }
+    console.log("📥 Raw Gemini Response:", JSON.stringify(response, null, 2));
 
-  const call = response.functionCalls[0];
-  console.log("🛎️ Gemini wants to use Tool:", call);
+    // ✅ 5. If no functionCall → final natural answer → exit loop
+    if (!response.functionCalls || response.functionCalls.length === 0) {
+      console.log("✅ Final Answer:", response.text);
+      break;
+    }
 
-  // 3. Add model function call to messages
-  messages.push({ role: "model", parts: [{ functionCall: call }] });
+    // ✅ 6. Gemini requested a tool → handle it
+    const call = response.functionCalls[0];
+    console.log(
+      "🛎️ Gemini is calling tool:",
+      call.name,
+      "with args:",
+      call.args
+    );
 
-  // 4. Execute tool
-  console.log(`⚙️ Executing MCP Tool '${call.name}' with args:`, call.args);
-  const toolResult = await mcpClient.callTool({
-    name: call.name!,
-    arguments: call.args,
-  });
+    // Add function call to conversation
+    messages.push({
+      role: "model",
+      parts: [{ functionCall: call }],
+    });
 
-  console.log("📦 Tool Response:", toolResult);
+    // ✅ 7. Execute tool using MCP server
+    const toolResult = await mcpClient.callTool({
+      name: call.name!,
+      arguments: call.args,
+    });
+    console.log("📦 MCP Tool Result:", toolResult);
 
-  // 5. Add tool result
-  messages.push({
-    role: "function",
-    parts: [
-      {
-        functionResponse: {
-          name: call.name,
-          response: toolResult,
+    // Add tool result back to LLM context
+    messages.push({
+      role: "function",
+      parts: [
+        {
+          functionResponse: {
+            name: call.name,
+            response: toolResult,
+          },
         },
-      },
-    ],
-  });
-
-  // 6. Ask Gemini final natural language response
-  console.log("💬 Sending final function result back to Gemini...");
-  const finalResponse = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: messages,
-  });
-
-  console.log("✅ Final Answer:", finalResponse.text);
+      ],
+    });
+  }
 }
 
 main().catch((error) => {
-  console.error("❌ Error occurred:", error);
+  console.error("❌ Error:", error);
 });
