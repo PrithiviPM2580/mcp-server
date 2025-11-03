@@ -13,18 +13,13 @@ const mcpServer = new McpServer({
   name: "MCP Streamable HTTP Server",
   version: "1.0.0",
   description: "An MCP server using Streamable HTTP Transport",
-  capabilities: {
-    resources: {
-      listChanged: false,
-    },
-  },
 });
 
 // Define Register Tool
 
 // Tool 1: Addition Tool
 mcpServer.registerTool(
-  "addition-too",
+  "addition-tool",
   {
     title: "Addition Tool",
     description: "A tool that adds two numbers",
@@ -157,11 +152,32 @@ mcpServer.registerTool(
   }
 );
 
+// Define Register Resource
+
+// Resource:1 Greeting Resource Template
+mcpServer.registerResource(
+  "greeting",
+  new ResourceTemplate("greeting://{name}", { list: undefined }),
+  {
+    title: "Greeting Resource",
+    description: "A resource that provides greeting messages",
+  },
+  async (uri, { name }) => ({
+    contents: [
+      {
+        uri: uri.href,
+        text: `Hello, ${name}! Welcome to the MCP Streamable HTTP Server.`,
+      },
+    ],
+  })
+);
+
 // Start Express Server with Streamable HTTP Transport
 const app = express();
 app.use(express.json());
 
 app.post("/mcp", async (req, res) => {
+  console.log("MCP is working");
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
