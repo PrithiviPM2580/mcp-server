@@ -13,6 +13,11 @@ const mcpServer = new McpServer({
   name: "MCP Streamable HTTP Server",
   version: "1.0.0",
   description: "An MCP server using Streamable HTTP Transport",
+  capabilities: {
+    resources: {
+      listChanged: false,
+    },
+  },
 });
 
 // Define Register Tool
@@ -89,8 +94,11 @@ mcpServer.registerTool(
     };
 
     return {
-      content: [{ type: "text", text: JSON.stringify({ weatherInfo }) }],
-      structuredContent: { weatherInfo },
+      content: [{ type: "text", text: JSON.stringify(weatherInfo) }],
+      structuredContent: {
+        temperature: weatherInfo.temperature,
+        condition: weatherInfo.condition,
+      },
     };
   }
 );
